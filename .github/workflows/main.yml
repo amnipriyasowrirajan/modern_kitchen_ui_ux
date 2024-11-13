@@ -1,0 +1,40 @@
+name: Deploy modern kitchen uiux  via FTP
+
+on:
+  push:
+    branches:
+      - main  # Trigger the workflow when code is pushed to the main branch
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Checkout the code from the repository
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # Step 2: Setup Node.js to build the React app
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      # Step 3: Install dependencies
+      - name: Install dependencies
+        run: npm install
+
+      # Step 4: Build the React app
+      - name: Build the modern kitchen uiux app
+        run: CI=false npm run build
+
+      # Step 5: Deploy files to the server using FTP
+      - name: Deploy to cPanel Hosting via FTP
+        uses: samkirkland/ftp-deploy-action@4.0.0
+        with:
+          server: ${{ secrets.FTP_HOST }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          port: ${{ secrets.FTP_PORT }}
+          local-dir: ./build/
+          server-dir: /build-cicd/ # Adjust this path to match your hosting setup
